@@ -14,11 +14,13 @@ This guide walks through deploying a Django application on Oracle Cloud Infrastr
 1. **Login to OCI Console**: Go to the Oracle Cloud Infrastructure console and log in with your credentials.
 2. **Navigate to Networking**: In the main menu, under the "Core Infrastructure" section, click on "Networking" and then "Virtual Cloud Networks".
 3. **Create VCN**: Click on "Create VCN".
+![VCN Creation](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/vcn-1.png?raw=true)
 4. **VCN Details**:
     - **Name**: Enter a name for your VCN.
     - **Compartment**: Create in default compartment, where your VM will reside.
     - **CIDR Block**: Enter a CIDR block for your VCN (e.g., 10.0.0.0/16).
     - **DNS Label**: Optionally, enter a DNS label for the VCN.
+    ![VCN Wizard](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/vcn-2.png?raw=true?)
 6. **Create Subnets**:
     - **Public Subnet**: Create a public subnet for resources that need to be accessible from the internet.
     - **Private Subnet**: Create a private subnet for internal resources.
