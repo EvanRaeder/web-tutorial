@@ -21,22 +21,47 @@ This guide walks through deploying a Django application on Oracle Cloud Infrastr
     - **CIDR Block**: Enter a CIDR block for your VCN (e.g., 10.0.0.0/16).
     - **DNS Label**: Optionally, enter a DNS label for the VCN.
     ![VCN Wizard](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/vcn-2.png?raw=true?)
-6. **Create Subnets**:
-    - **Public Subnet**: Create a public subnet for resources that need to be accessible from the internet.
-    - **Private Subnet**: Create a private subnet for internal resources.
-7. **Internet Gateway**: Create an Internet Gateway to allow traffic to and from the internet.
-8. **Route Table**: Configure route tables to define how traffic should be routed within the VCN.
-9. **Security Lists**: Set up security lists to control the traffic allowed to and from the subnets.
-10. **Review and Create**: Review your configuration and click "Create VCN".
+5. **Create Subnets**:
+    ![Subnet Creation](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/vcn-3.png?raw=true?)
+    ![Subnet Creation](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/vcn-4.png?raw=true?)
+6. **Check CIDR**:
+![CIDR](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/vcn-5.png?raw=true?)
+7. **Security Lists**: Set up security lists to control the traffic allowed to and from the subnets.
+    - **Create a New List**
+    ![Create Security List](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/vcn-6.png?raw=true?)
+    - **Add Rules**
+    ![Create Rules](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/vcn-7.png?raw=true?)
+    ![Create Rules](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/vcn-8.png?raw=true?)
+8. **Internet Gateway**: Create an Internet Gateway to allow traffic to and from the internet.
+![Create Gateway](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/vcn-9.png?raw=true?)
 
 Your Virtual Cloud Network is now set up and ready for use.
 
 ## 1. Initial Server Setup
 
+### Create Instance
+![Create Instance](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/OCI-1.png?raw=true?)
+Select Shape
+![Select Shape](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/OCI-2.png?raw=true?)
+Choose the created vnic and select Public IP info
+![Select Vnic](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/OCI-3.png?raw=true?)
+Save Private Key
+![Save Key](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/OCI-4.png?raw=true?)
+
+### Add the Key (Client)
+
+Keep the key somewhere safe (`User/.ssh`)
+
+```bash
+ssh-add [path_to_private_key]
+```
+
+_If ssh agent not running you have to run `Start-Service ssh-agent` (Win) or `eval "ssh-agent"`_
+
 ### Connect to Server
 
 ```bash
-ssh ubuntu@[ip_address] -i [path_to_private_key]
+ssh ubuntu@[ip_address]
 ```
 
 ### Install Required Packages
@@ -50,7 +75,9 @@ sudo apt-get install python3-venv
 ## 2. Django Application Setup
 
 ### Use your own repo
+
 If you use your own private repo create an ssh key on the server and copy into github allowed keys. You should probably disable push for this key.
+
 ```bash
 git clone https://github.com/[your-repo]/[your-app].git
 ```
@@ -93,6 +120,7 @@ sudo netfilter-persistent save
 ## 4. Gunicorn Setup
 
 ### Test Gunicorn
+
 ```bash
 cd /home/ubuntu/[project_name]/[project_name]
 gunicorn --bind 0.0.0.0:8000 [project_name].wsgi
@@ -101,6 +129,7 @@ gunicorn --bind 0.0.0.0:8000 [project_name].wsgi
 ### Create Gunicorn System Files
 
 1. Create log directory:
+
 ```bash
 sudo mkdir /var/log/gunicorn
 ```
