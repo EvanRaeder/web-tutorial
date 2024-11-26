@@ -7,7 +7,7 @@ This guide walks through deploying a Django application on Oracle Cloud Infrastr
 - An Oracle Cloud Infrastructure (OCI) account
 - A Django application ready for deployment
 - Ubuntu VM set up on OCI
-- Your DNS (added to cloudflare)
+- Your DNS
 
 ## 1. Create Virtual Cloud Network (VCN)
 
@@ -101,23 +101,37 @@ source /home/ubuntu/[project_name]/venv/bin/activate
 pip install gunicorn
 ```
 
-## 3. Firewall Configuration
+## 3. Make sure IP's are added to DNS Provider
+
+Log in to your domain registrar's control panel: This is where you manage your domain settings. Add the following records.
+
+_Depending on DNS provider name may be blank instead of @_
+
+| Type  | Name | Value             |
+|-------|------|-------------------|
+| A     | @    | Enter the IPv4 address |
+| AAAA  | @    | Enter the IPv6 address |
+
+_If you want www routing as well follow the same steps with name:www_
+
+
+## 4. Firewall Configuration
 
 ### Configure Ubuntu Firewall
 
 ```bash
 sudo apt-get install iptables-persistent
-sudo iptables -I INPUT 5 -p tcp --dport 8000 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+sudo iptables -I INPUT 5 -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+sudo netfilter-persistent save
+sudo iptables -I INPUT 5 -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 sudo netfilter-persistent save
 ```
 
-### Configure OCI Firewall
+**Note:** If you are going to dissallow http then **do not** allow port 80
 
-1. Navigate to OCI Console
-2. Add ingress rule to security list for subnet
-3. Allow port 80, 443
+_However; It may be useful for testing._
 
-## 4. Gunicorn Setup
+## 5. Gunicorn Setup
 
 ### Test Gunicorn
 
@@ -183,7 +197,7 @@ sudo systemctl start gunicorn.socket
 sudo systemctl enable gunicorn.socket
 ```
 
-## 5. Nginx Setup
+## 6. Nginx Setup
 
 ### Install Nginx
 
@@ -191,9 +205,10 @@ sudo systemctl enable gunicorn.socket
 sudo apt-get install nginx
 ```
 
-### Configure Django Settings
+### Configure Django Settings For Deployment
 
 Update `settings.py`:
+
 ```python
 DEBUG = False
 ALLOWED_HOSTS = ['*']
@@ -210,13 +225,15 @@ python manage.py collectstatic
 ### Configure Nginx
 
 1. Create site configuration:
+
 ```bash
 sudo nano /etc/nginx/sites-available/[project_name]
 ```
+
 ```nginx
 server {
     listen 80;
-    server_name [your_ip_address];
+    server_name [your_domain] [www.yourdomain];
 
     location = /favicon.ico { 
         access_log off; 
@@ -239,11 +256,15 @@ server {
 ```
 
 2. Set permissions:
+
 ```bash
 sudo gpasswd -a www-data ubuntu
 ```
 
+_You may need to make the static folder readable by www-data as well_
+
 3. Create symbolic link to enable site:
+
 ```bash
 sudo ln -s /etc/nginx/sites-available/[project_name] /etc/nginx/sites-enabled
 ```
@@ -255,16 +276,24 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-### Configure Port 80
+## 7. SSL Configuration (through certbot)
 
-1. Add ingress rule for port 80
-2. Configure Ubuntu firewall:
+It is recommended that you follow the seperate guide for setting up cloudflare.
+If you would not like to use cloud flare you can use certbot instead.
+
+### Install certbot
+
 ```bash
-sudo iptables -I INPUT 5 -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-sudo netfilter-persistent save
+sudo apt install certbot python3-certbot-nginx
 ```
 
-## 6. SSL Configuration (through cloudflare)
+### Get SSL certbot
+
+```bash
+sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+```
+
+Follow the setup instructions when it asks **Please choose whether or not to redirect HTTP traffic to HTTPS, removing HTTP access.** choose **2: Redirect**
 
 ## Maintenance Commands
 
@@ -284,3 +313,4 @@ sudo systemctl status nginx
 ```
 
 Remember to replace placeholders (indicated by `[brackets]`) with your actual values before using the commands.
+
