@@ -51,6 +51,7 @@ Your Virtual Cloud Network is now set up and ready for use.
 ## 1. Initial Server Setup
 
 ### Create Instance
+
 ![Create Instance](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/OCI-1.png?raw=true?)
 Select Shape
 ![Select Shape](https://github.com/EvanRaeder/web-tutorial/blob/main/docs/media/OCI-2.png?raw=true?)
