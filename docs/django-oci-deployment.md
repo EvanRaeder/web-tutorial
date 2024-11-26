@@ -7,7 +7,7 @@ graph TD;
     A[Client] --> B(Nginx);
     B --> C{gunicorn};
     C --> D[Django Application];
-    B --> E{Static};
+    E{Static} --> B;
     D --> C;
     C --> B;
     B --> A;
