@@ -2,6 +2,15 @@
 
 This guide walks through deploying a Django application on Oracle Cloud Infrastructure using Ubuntu, Gunicorn, and Nginx.
 
+```mermaid
+graph TD;
+    A[Client] --> B(Nginx);
+    B --> C{gunicorn};
+    C --> D[Django Application];
+    D --> C;
+    C --> B;
+```
+
 ## Prerequisites
 
 - An Oracle Cloud Infrastructure (OCI) account
